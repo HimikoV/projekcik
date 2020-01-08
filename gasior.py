@@ -2,8 +2,8 @@ import numpy as np
 import random
 
 
-# średnia ilość klientów na minute = 0.1 normalny (10% szans że w danej minucie przyjdzie klient normalny)
-# srednia ilość klientów na minutę = 0.04 biznesowy (5% szans że w danej minucie przyjdzie klient biznesowy)
+# średnia ilość klientów na minute = .15
+klientow=0.05
 # sredni czas obslugi 10 - normalny, losujemy między 5 a 15
 # sredni czas obslugi 30 - biznesowy losujemy miedzy 20 a 40
 # sredni zarobek za klienta normalnego - 65 (losujemy pomiędzy 40 a 90)
@@ -22,9 +22,6 @@ class Client():
 
     normal_employee_cost = 2000 / 160
     qualified_employee_cost = 5000 / 160
-
-    def zwroc(self):
-        return self.category
 
     def queue_check(self):
         if self.category > .66:
@@ -49,11 +46,11 @@ def skracanie_czasu(list, actual_profit):
         del list[i - j]
         j += 1
     try:
-        list[deep_index(list,'biznes')[0][0]][1] -= 1
+        list[deep_index(list,'kolejkaA')[0][0]][1] -= 1
     except:
         pass
     try:
-        list[deep_index(list,'normalny')[0][0]][1] -=1
+        list[deep_index(list,'kolejkaB')[0][0]][1] -=1
     except:
         pass
     return list, actual_profit
@@ -68,46 +65,57 @@ def counter(list):
     listA = 0
     listB = 0
     for i in range(len(list)):
-        if list[i][0].zwroc() > .66:
+        if list[i][3] == 'kolejkaA':
             listA += 1
         else:
             listB += 1
     return listA, listB
 
-
-list = []
-queueA = 0
-queueB = 0
-iterator = 0
-time = 0
-profit = 0
-utracony=0
-while time < 720:
-    minute_check = random.random()
-    list, profit = skracanie_czasu(list, profit)
-    if minute_check > .8:
-        los = random.random()
-        if queueA>=10:
-            if kolejka(queueA):
+def simulation(klientow):
+    list = []
+    queueA = 0
+    queueB = 0
+    time = 0
+    profit = 0
+    utracony=0
+    while time < 720:
+        minute_check = random.random()
+        list, profit = skracanie_czasu(list, profit)
+        if minute_check > 1-klientow:
+            los = random.random()
+            if queueB-queueA>6 and los<.66 and queueA<8:
+                list.append([Client(los), random.randint(5,15),'normalny','kolejkaA'])
+            elif queueA>=10 and los>.66:
+                if kolejka(queueA):
+                    list.append([Client(los), random.randint(15, 35),'biznes','kolejkaA'])
+                else:
+                    utracony+=1
+            elif queueB>=10 and los <=.66:
+                if kolejka(queueB):
+                    list.append([Client(los), random.randint(5, 15),'normalny','kolejkaB'])
+                else:
+                    utracony+=1
+            else:
                 if los > .66:
-                    list.append([Client(los), random.randint(20, 40),'biznes'])
-        elif queueB>=10:
-            if kolejka(queueB):
-                if los < .66:
-                    list.append([Client(los), random.randint(5, 15),'normalny'])
-            else:
-                utracony+=1
-                print(utracony)
-        else:
-            if los > .66:
-                list.append([Client(los), random.randint(20, 40),'biznes'])
-            else:
-                list.append([Client(los), random.randint(5, 15),'normalny'])
-        queueA, queueB = counter(list)
-    if time % 60 == 0:
-        profit -= (Client.normal_employee_cost + Client.qualified_employee_cost)
-    if utracony>10:
-        time=721
-    time += 1
+                    list.append([Client(los), random.randint(15, 35),'biznes','kolejkaA'])
+                else:
+                    list.append([Client(los), random.randint(5, 15),'normalny','kolejkaB'])
+            queueA, queueB = counter(list)
+        if time % 60 == 0:
+            profit -= (Client.normal_employee_cost + Client.qualified_employee_cost)
+        time += 1
 
-print(f"profit: {profit}, kolejki {queueA, queueB}")
+    # print(f"profit: {profit}, kolejka biznesowa: {queueA} kolejka normalna: {queueB} klientów utraconych przez rozmyslenie się: {utracony}"  )
+    return {'profit':profit,'kolejka1':queueA,'kolejka2':queueB,'utraceni':utracony}
+
+dane={}
+dane2={}
+import time
+poczatek= time.time()
+for j in range(50):
+    for i in range(1,1001):
+        dane[f"dzien{i}"]=simulation(klientow)
+    dane2[f"scenariusz{j}"]=dane
+    klientow+=0.01
+print(dane)
+print("czas: ", time.time()-poczatek)
