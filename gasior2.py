@@ -131,7 +131,7 @@ def simulation(klientow):
 dane = {}
 dane2 = {}
 import time
-klientow = 0.15
+klientow = 0.05
 poczatek = time.time()
 for j in range(50): #ilosc wariantów (srednia czestotliwosc klientow)
     for i in range(1, 1001):
