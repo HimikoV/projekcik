@@ -120,7 +120,7 @@ def simulation(klientow):
                 list.append([Client(los), random.randint(5, 15), 'normalny', 'kolejkaB'])
             queueA, queueB = counter(list)
         if time % 60 == 0:
-            profit -= (Client.normal_employee_cost + Client.qualified_employee_cost)
+            profit -= (Client.qualified_employee_cost + Client.qualified_employee_cost)
         time += 1
 
     # print(f"profit: {profit}, kolejka biznesowa: {queueA} kolejka normalna: {queueB}
