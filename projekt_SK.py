@@ -126,6 +126,7 @@ def simulation(klientow, srednia):
 dane = {}
 dane2 = {}
 import time
+dane3={}
 klientow = 0.05
 poczatek = time.time()
 srednia = [[10,25],[15,30]]
