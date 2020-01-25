@@ -128,19 +128,24 @@ def simulation(klientow,srednia):
     return {'profit': profit, 'kolejka1': queueA, 'kolejka2': queueB, 'utraceni': utracony, 'iloscKlientow': klient}
 
 
-dane = {}
-dane2 = {}
+
+
 import time
 dane3={}
-klientow = 0.05
+
 poczatek = time.time()
 srednia=[[10,25],[15,30]]
 for k in range(2):
+    dane2={}
+    klientow=0.05
     for j in range(50): #ilosc wariantów (srednia czestotliwosc klientow)
+        dane={}
         for i in range(1, 1001):
             dane[f"dzien{i}"] = simulation(klientow,srednia[k]) #ilosc prob sprawdzania danej symulacji
         dane2[f"scenariusz{j}"] = dane
+        print(klientow)
         klientow += 0.01
+        print(dane2[f"scenariusz{j}"]["dzien1"])
     dane3[f"srednia{k}"]=dane2
 
 print("czas: ", time.time() - poczatek) #zwraca czas pracy symulacji
